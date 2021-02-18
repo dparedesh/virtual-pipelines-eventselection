@@ -62,15 +62,14 @@ jobs:
       - name: checkout repository    # again checking out repository
         uses: actions/checkout@v2
 
-     - uses: actions/download-artifact@v2   # downloading root file previously produced
-       with:
-         name: skim_ggH
+      - uses: actions/download-artifact@v2   # downloading root file previously produced
+        with:
+          name: skim_ggH
 
-     - name: plot 
-       run: python histograms.py skim_ggH.root ggH hist_ggH.root  # creating the plot
+      - name: plot 
+        run: python histograms.py skim_ggH.root ggH hist_ggH.root  # creating the plot
 
-     - uses: actions/upload-artifact@v2   # uploading the plot
-       with:
-         name: histograms
-         path: hist_ggH.root
-
+      - uses: actions/upload-artifact@v2   # uploading the plot
+        with:
+          name: histograms
+          path: hist_ggH.root
