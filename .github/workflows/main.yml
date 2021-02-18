@@ -30,6 +30,12 @@ jobs:
           $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
 
 
+      - uses: actions/upload-artifact@v2    #to pass executable to the job skim
+        with:
+          name: skim${{ matrix.version }}
+          path: skim
+
+
   skim:
     needs: build_skim
     runs-on: ubuntu-latest
@@ -38,6 +44,12 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v2
 
+      - uses: actions/download-artifact@v2 #to get executable from previous job
+        with:
+          name: skim6.18.04
+
       - name: skim
-        run: ./skim
+        run: |
+          chmod +x ./skim  # to the executable a real executable!
+          ./skim
 
