@@ -1,13 +1,8 @@
 name: example
 on: push
 jobs:
-  greeting:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo hello world
 
   build_skim:
-    needs: greeting
     runs-on: ubuntu-latest
     container: rootproject/root-conda:${{ matrix.version }}
     continue-on-error: ${{ matrix.allow_failure }}
@@ -20,13 +15,13 @@ jobs:
            allow_failure: true
 
     steps:
-      - name: checkout repository
+      - name: checkout repository    # need to checkout repository so that it can see the file skim.cxx
         uses: actions/checkout@v2
 
       - name: build
         run: |
           COMPILER=$(root-config --cxx)
-          FLAGS=$(root-config --cflags --libs)
+          FLAGS=$(root-config --cflags --libs)    # adding proper flags so that it can compile properly
           $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
 
 
@@ -39,7 +34,7 @@ jobs:
   skim:
     needs: build_skim
     runs-on: ubuntu-latest
-    container: rootproject/root-conda:6.18.04
+    container: rootproject/root-conda:6.18.04   # we run root to run the skim
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
@@ -53,8 +48,29 @@ jobs:
           chmod +x ./skim  # to the executable a real executable!
           ./skim root://eospublic.cern.ch//eos/root-eos/HiggsTauTauReduced/GluGluToHToTauTau.root skim_ggH.root 19.6 11467.0 0.1
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2    #uploading output file from skimming
         with:
           name: skim_ggH
           path: skim_ggH.root
+
+
+  plot:
+    needs: skim
+    runs-on: ubuntu-latest
+    container: rootproject/root-conda:6.18.04  # need root and python to run plotting
+    steps:
+      - name: checkout repository    # again checking out repository
+        uses: actions/checkout@v2
+
+     - uses: actions/download-artifact@v2   # downloading root file previously produced
+       with:
+         name: skim_ggH
+
+     - name: plot 
+       run: python histograms.py skim_ggH.root ggH hist_ggH.root  # creating the plot
+
+     - uses: actions/upload-artifact@v2   # uploading the plot
+       with:
+         name: histograms
+         path: hist_ggH.root
 
