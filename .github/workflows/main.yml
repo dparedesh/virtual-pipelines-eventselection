@@ -51,5 +51,5 @@ jobs:
       - name: skim
         run: |
           chmod +x ./skim  # to the executable a real executable!
-          ./skim
+          ./skim root://eosuser.cern.ch//eos/user/g/gstark/AwesomeWorkshopFeb2020/GluGluToHToTauTau.root skim_ggH.root 19.6 11467.0 0.1
 
